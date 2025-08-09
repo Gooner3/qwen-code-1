@@ -17,6 +17,7 @@ describe('validateNonInterActiveAuth', () => {
   let originalEnvVertexAi: string | undefined;
   let originalEnvGcp: string | undefined;
   let originalEnvOpenAiApiKey: string | undefined;
+  let originalEnvOpenAiBaseUrl: string | undefined;
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
   let processExitSpy: ReturnType<typeof vi.spyOn>;
   let refreshAuthMock: jest.MockedFunction<
@@ -28,10 +29,12 @@ describe('validateNonInterActiveAuth', () => {
     originalEnvVertexAi = process.env.GOOGLE_GENAI_USE_VERTEXAI;
     originalEnvGcp = process.env.GOOGLE_GENAI_USE_GCA;
     originalEnvOpenAiApiKey = process.env.OPENAI_API_KEY;
+    originalEnvOpenAiBaseUrl = process.env.OPENAI_BASE_URL;
     delete process.env.GEMINI_API_KEY;
     delete process.env.GOOGLE_GENAI_USE_VERTEXAI;
     delete process.env.GOOGLE_GENAI_USE_GCA;
     delete process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_BASE_URL;
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     processExitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => {
       throw new Error(`process.exit(${code}) called`);
@@ -59,6 +62,11 @@ describe('validateNonInterActiveAuth', () => {
       process.env.OPENAI_API_KEY = originalEnvOpenAiApiKey;
     } else {
       delete process.env.OPENAI_API_KEY;
+    }
+    if (originalEnvOpenAiBaseUrl !== undefined) {
+      process.env.OPENAI_BASE_URL = originalEnvOpenAiBaseUrl;
+    } else {
+      delete process.env.OPENAI_BASE_URL;
     }
     vi.restoreAllMocks();
   });
@@ -111,6 +119,19 @@ describe('validateNonInterActiveAuth', () => {
 
   it('uses USE_OPENAI if OPENAI_API_KEY is set', async () => {
     process.env.OPENAI_API_KEY = 'fake-openai-key';
+    const nonInteractiveConfig: NonInteractiveConfig = {
+      refreshAuth: refreshAuthMock,
+    };
+    await validateNonInteractiveAuth(
+      undefined,
+      undefined,
+      nonInteractiveConfig,
+    );
+    expect(refreshAuthMock).toHaveBeenCalledWith(AuthType.USE_OPENAI);
+  });
+
+  it('uses USE_OPENAI if OPENAI_BASE_URL is set', async () => {
+    process.env.OPENAI_BASE_URL = 'http://localhost:8080/v1';
     const nonInteractiveConfig: NonInteractiveConfig = {
       refreshAuth: refreshAuthMock,
     };

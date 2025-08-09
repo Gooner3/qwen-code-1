@@ -181,17 +181,16 @@ export async function createContentGenerator(
   }
 
   if (config.authType === AuthType.USE_OPENAI) {
-    if (!config.apiKey) {
-      throw new Error('OpenAI API key is required');
-    }
-
     // Import OpenAIContentGenerator dynamically to avoid circular dependencies
     const { OpenAIContentGenerator } = await import(
       './openaiContentGenerator.js'
     );
 
+    // Allow local OpenAI-compatible endpoints (like llama.cpp) without an API key
+    const apiKey = config.apiKey || 'no-api-key';
+
     // Always use OpenAIContentGenerator, logging is controlled by enableOpenAILogging flag
-    return new OpenAIContentGenerator(config.apiKey, config.model, gcConfig);
+    return new OpenAIContentGenerator(apiKey, config.model, gcConfig);
   }
 
   if (config.authType === AuthType.QWEN_OAUTH) {

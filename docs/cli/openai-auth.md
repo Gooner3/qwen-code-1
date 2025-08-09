@@ -64,6 +64,15 @@ You can use custom endpoints by setting the `OPENAI_BASE_URL` environment variab
 - Using other OpenAI-compatible APIs
 - Using local OpenAI-compatible servers
 
+### Using a local `llama.cpp` server
+
+If you're running a `llama.cpp` server with OpenAI-compatible APIs, no API key is required. Configure the CLI like this:
+
+```bash
+export OPENAI_BASE_URL="http://localhost:8000/v1"
+export OPENAI_MODEL="your-model-name"
+```
+
 ## Switching Authentication Methods
 
 To switch between authentication methods, use the `/auth` command in the CLI interface.

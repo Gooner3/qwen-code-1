@@ -205,6 +205,16 @@ export OPENAI_BASE_URL="https://openrouter.ai/api/v1"
 export OPENAI_MODEL="qwen/qwen3-coder:free"
 ```
 
+**Option 3: Local Llama.cpp Server**
+
+Run a local `llama.cpp` server with OpenAI compatibility and point the CLI at it:
+
+```bash
+export OPENAI_BASE_URL="http://localhost:8000/v1"
+export OPENAI_MODEL="your-model-name"
+# No OPENAI_API_KEY needed for local servers
+```
+
 </details>
 
 ## Usage Examples

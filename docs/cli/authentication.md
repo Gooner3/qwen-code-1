@@ -125,7 +125,7 @@ The CLI will automatically detect if it is running in a non-interactive terminal
 OpenAI-compatible API method if configured:
 
 1.  **OpenAI-Compatible API:**
-    - Set the `OPENAI_API_KEY` environment variable.
+    - Set the `OPENAI_API_KEY` environment variable. (Optional for local servers like `llama.cpp`.)
     - Optionally set `OPENAI_BASE_URL` and `OPENAI_MODEL` for custom endpoints.
     - The CLI will use these credentials to authenticate with the API provider.
 
