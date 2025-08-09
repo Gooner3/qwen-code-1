@@ -40,7 +40,11 @@ export const validateAuthMethod = (authMethod: string): string | null => {
 
   if (authMethod === AuthType.USE_OPENAI) {
     if (!process.env.OPENAI_API_KEY) {
-      return 'OPENAI_API_KEY environment variable not found. You can enter it interactively or add it to your .env file.';
+      const baseUrl = process.env.OPENAI_BASE_URL || '';
+      const isLocal = baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1');
+      if (!isLocal) {
+        return 'OPENAI_API_KEY environment variable not found. You can enter it interactively or add it to your .env file.';
+      }
     }
     return null;
   }
