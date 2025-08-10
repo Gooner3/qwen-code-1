@@ -81,6 +81,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
   protected client: OpenAI;
   private model: string;
   private config: Config;
+  private baseURL: string;
   private streamingToolCalls: Map<
     number,
     {
@@ -94,6 +95,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
     this.model = model;
     this.config = config;
     const baseURL = process.env.OPENAI_BASE_URL || '';
+    this.baseURL = baseURL;
 
     // Configure timeout settings - using progressive timeouts
     const timeoutConfig = {
@@ -205,6 +207,7 @@ export class OpenAIContentGenerator implements ContentGenerator {
         model: this.model,
         messages,
         ...samplingParams,
+        stream: false,
         metadata: {
           sessionId: this.config.getSessionId?.(),
           promptId: userPromptId,
@@ -324,6 +327,19 @@ export class OpenAIContentGenerator implements ContentGenerator {
     request: GenerateContentParameters,
     userPromptId: string,
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
+    // llama.cpp's OpenAI-compatible server doesn't support tool use with streaming
+    // responses. When targeting a local llama.cpp instance (detected via base URL),
+    // force non-streaming behavior and wrap the result in an async generator.
+    const needsNoStream =
+      this.baseURL.includes('localhost') || this.baseURL.includes('127.0.0.1');
+    if (needsNoStream) {
+      const response = await this.generateContent(request, userPromptId);
+      async function* wrapped() {
+        yield response;
+      }
+      return wrapped();
+    }
+
     const startTime = Date.now();
     const messages = this.convertToOpenAIFormat(request);
 
